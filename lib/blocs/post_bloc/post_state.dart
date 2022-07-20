@@ -1,17 +1,16 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 part of './post_bloc.dart';
 
-enum Status { initial, success, failure }
-
-class PostState extends Equatable {
+class PostState extends BaseState {
   final List<PostModel> posts;
   final bool hasMax;
-  final Status status;
 
   const PostState({
     this.posts = const <PostModel>[],
     this.hasMax = false,
-    this.status = Status.initial,
+    super.status = Status.initial,
   });
+
   @override
   List<Object?> get props => [posts, status, hasMax];
 

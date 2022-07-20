@@ -1,20 +1,18 @@
+import 'dart:io';
+
 import 'package:bloc/bloc.dart';
-import 'package:bloc_concurrency/bloc_concurrency.dart';
+import 'package:bloc_post/core/enums/url_enum.dart';
 import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
-import 'package:stream_transform/stream_transform.dart';
 
+import '../../core/base/base_state.dart';
+import '../../core/enums/status_enum.dart';
+import '../../core/utils/event_transformer_utils.dart';
 import '../../models/post_model.dart';
 
 part 'post_event.dart';
 part 'post_state.dart';
-
-EventTransformer<T> postDroppable<T>() {
-  return ((events, mapper) {
-    return droppable<T>().call(events.throttle(const Duration(milliseconds: 200)), mapper);
-  });
-}
 
 class PostBloc extends Bloc<PostEvent, PostState> {
   final Dio _client;
@@ -23,7 +21,7 @@ class PostBloc extends Bloc<PostEvent, PostState> {
         super(
           const PostState(),
         ) {
-    on<PostFetched>(_onPostFetched, transformer: postDroppable());
+    on<PostFetched>(_onPostFetched, transformer: droppableTransformer());
   }
 
   Future<void> _onPostFetched(PostFetched event, Emitter<PostState> emit) async {
@@ -46,10 +44,10 @@ class PostBloc extends Bloc<PostEvent, PostState> {
 
   Future<List<PostModel>> _fetchPosts({int startIndex = 0, int limit = 20}) async {
     final response = await _client.get(
-      'https://jsonplaceholder.typicode.com/posts',
+      URL.posts.value(),
       queryParameters: {'_start': '$startIndex', '_limit': '$limit'},
     );
-    if (response.statusCode == 200) {
+    if (response.statusCode == HttpStatus.ok) {
       return (response.data as List).map((e) => PostModel.fromMap(e)).cast<PostModel>().toList();
     }
     throw Exception();

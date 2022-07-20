@@ -1,4 +1,4 @@
-import 'package:bloc_post/views/home_page.dart';
+import 'package:bloc_post/views/home/home_page.dart';
 import 'package:flutter/material.dart';
 
 void main() {
